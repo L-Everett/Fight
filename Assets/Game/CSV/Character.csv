@@ -1,0 +1,4 @@
+﻿索引,名字,移动速度,攻击力,暴击率,暴击伤害,血量,攻速,攻击范围,初始武器
+Id,Name,MoveSpeed,ATK,Crit,CritDamage,HP,ATKSpeed,ATKRange,Weapon
+string,string,float,float,float,float,float,float,float,string
+C001,无名剑客,5,100,0.1,1,1000,0.8,9,W001

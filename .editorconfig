@@ -1,0 +1,6 @@
+# 顶级 EditorConfig 文件
+root = true
+
+# 所有 C# 文件使用 UTF-8 编码
+[*.cs]
+charset = utf-8
