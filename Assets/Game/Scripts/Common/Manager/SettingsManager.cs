@@ -46,7 +46,10 @@ public class SettingsManager : MonoBehaviour
 
     public void CloseSetting()
     {
-        BattleManager.Instance.Resume();
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.Resume();
+        }
         gameObject.SetActive(false);
     }
 }
