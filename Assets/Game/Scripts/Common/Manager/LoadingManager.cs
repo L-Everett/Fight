@@ -1,17 +1,43 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LoadingManager : MonoBehaviour, IMsgHandler
 {
+    private static bool isCreated = false;
     public GameObject loadingScreen;
     public Image progressFill;
+    private bool isLoading = false;
+    private Queue<string> loadingQ = new Queue<string>();
+
+    private void Awake()
+    {
+        if (isCreated)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        isCreated = true;
+        DontDestroyOnLoad(gameObject);
+    }
 
     private void Start()
     {
         MsgManager.Instance.AddMsgListener(Constant.MSG_NOTIFY_SCENE_CHANGE, this);
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update()
+    {
+        if(loadingQ.Count > 0 && !isLoading)
+        {
+            isLoading = true;
+            SaveSystem.SaveGame();
+            loadingScreen.SetActive(true);
+            StartCoroutine(LoadSceneAsync(loadingQ.Dequeue()));
+        }
     }
 
     private void OnDestroy()
@@ -23,8 +49,7 @@ public class LoadingManager : MonoBehaviour, IMsgHandler
     {
         if (msg == Constant.MSG_NOTIFY_SCENE_CHANGE)
         {
-            loadingScreen.SetActive(true);
-            StartCoroutine(LoadSceneAsync((string)obj));
+            loadingQ.Enqueue((string)obj);
         }
     }
 
@@ -54,22 +79,18 @@ public class LoadingManager : MonoBehaviour, IMsgHandler
                 int bgm = 0;
                 switch (sceneName)
                 {
-                    case "StartScene":
-                        break;
                     case "MainScene":
                         bgm = 1;
                         break;
-                    default:
-                        break;
                 }
                 AudioManager.Instance.CrossFadeMusic(bgm);
-
-                yield return new WaitForSeconds(0.1f);
+                break;
             }
             yield return null;
         }
 
-        progressFill.fillAmount = 0f;
+        yield return new WaitForSeconds(0.3f);
+        isLoading = false;
         loadingScreen.SetActive(false);
     }
 }

@@ -1,8 +1,10 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
-using System.IO;
-using System;
 
 public class SaveSystemEditor : EditorWindow
 {
@@ -66,17 +68,23 @@ public class SaveSystemEditor : EditorWindow
     {
         if (File.Exists(SaveSystem.SAVE_FILE))
         {
-            string encryptedData = File.ReadAllText(SaveSystem.SAVE_FILE);
+            string encryptedData = File.ReadAllText(SaveSystem.SAVE_FILE, Encoding.UTF8);
             string jsonData = SaveSystem.DecryptData(encryptedData);
 
-            var data = JsonUtility.FromJson<DataModel>(jsonData);
+            // 使用Newtonsoft.Json反序列化
+            var settings = new JsonSerializerSettings
+            {
+                ObjectCreationHandling = ObjectCreationHandling.Replace
+            };
+
+            var data = JsonConvert.DeserializeObject<DataModel>(jsonData, settings);
 
             string info = $"存档信息:\n" +
-                         $"最大血量: {data.mPlayerMaxHp}\n" +
-                         $"当前血量: {data.mPlayerCurHp}\n" +
                          $"游玩时间: {data.mPlayTime:F1}秒\n" +
-                         $"解锁关卡: {data.mUnlockLevelCount}\n" +
-                         $"生命点数: {data.mGoldCount}";
+                         $"无名剑客神赐等级: Lv.{data.mTalentLv["C001"]:F0}\n" +
+                         $"流浪法师神赐等级: Lv.{data.mTalentLv["C002"]:F0}\n" +
+                         $"特种战士神赐等级: Lv.{data.mTalentLv["C003"]:F0}\n" +
+                         $"天赋石数量: {data.mGemCount}";
 
             EditorUtility.DisplayDialog("存档信息", info, "确定");
         }

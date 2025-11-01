@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+
 public class RunningManager
 {
     private static readonly object _lock = new object();
@@ -20,4 +22,7 @@ public class RunningManager
     }
 
     public string mCurrentCharacter = "C001";
+    public int mCurrentDiff = 0;
+    public int mMaxRound = 10;
+    public Dictionary<string, Dictionary<AttributeType, float>> mTalentAdd = new Dictionary<string, Dictionary<AttributeType, float>>();
 }

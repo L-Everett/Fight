@@ -4,10 +4,20 @@ using UnityEngine;
 public class StartManager : MonoBehaviour
 {
     public GameObject setting;
+    public GameObject select;
+    public GameObject environment;
+
+    private void OnEnable()
+    {
+        environment.SetActive(true);
+        select.SetActive(false);
+    }
 
     public void StartGame()
     {
-        MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_SCENE_CHANGE, "MainScene");
+        select.SetActive(true);
+        environment.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void StartSetting()

@@ -54,8 +54,16 @@ public class CSVReader
 
 public class StaticDataInterface : MonoBehaviour
 {
+    private static bool isCreated = false;
+
     private void Awake()
     {
+        if (isCreated)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        isCreated = true;
         DontDestroyOnLoad(this);
         Init();
     }
@@ -65,6 +73,7 @@ public class StaticDataInterface : MonoBehaviour
     public static StaticCharacter Character = new StaticCharacter();
     public static StaticRound Round = new StaticRound();
     public static StaticSkill Skill = new StaticSkill();
+    public static StaticTalent Talent = new StaticTalent();
 
     public static void Init()
     {
@@ -73,6 +82,7 @@ public class StaticDataInterface : MonoBehaviour
         Character.Init();
         Round.Init();
         Skill.Init();
+        Talent.Init();
     }
 
     public static CSVReader LoadCSV(string csvName)

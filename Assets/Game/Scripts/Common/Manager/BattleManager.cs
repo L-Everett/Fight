@@ -1,16 +1,15 @@
-using NPOI.SS.Formula.Functions;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public enum BattleStage
 {
-    DrawCrad,       // 抽卡阶段
-    PlayCard,   // 出牌阶段
+    DoCard,   // 打牌阶段
     Battle,     // 战斗阶段
-    Cleanup     // 清理阶段
+    Cleanup,     // 清理阶段
+    End       //战斗结束
 }
 //todo: 1.技能    2.buff 
 
@@ -24,8 +23,20 @@ public class BattleManager : MonoBehaviour
 
     public TextMeshProUGUI roundText;
     public TextMeshProUGUI coinText;
+    public TextMeshProUGUI gemText;
     public TextMeshProUGUI stageText;
+    //敌人信息
+    public TextMeshProUGUI enemyText;
+    private string[] quality = { "", "普通", "精英", "稀有", "史诗", "传说" };
+    private Color[] color = { Color.white,
+        new Color(0.66f, 0.66f, 0.66f, 1f), //普通
+        new Color(0.1f, 0.74f, 0f, 1f), //精英
+        new Color(0.33f, 0.85f, 1f, 1f), //稀有
+        new Color(0.68f, 0.3f, 1f, 1f), //史诗
+        new Color(1f, 0.62f, 0.15f, 1f), //传说
+    };
     public Transform enemyRoot;
+
     public Transform characterRoot;
     public GameObject nextStageBtn;
     public GameObject setting;
@@ -54,6 +65,10 @@ public class BattleManager : MonoBehaviour
     private int coinCount = 0;
     //金币加成
     [HideInInspector] public float coinAdd = 0;
+    //难度增幅
+    [HideInInspector] public float[] diffAdd = { 1, 2, 5, 10 };
+    //最大回合数
+    [HideInInspector] public int maxRoundCount;
 
     private void Awake()
     {
@@ -70,6 +85,9 @@ public class BattleManager : MonoBehaviour
         //初始资金
         coinCount = 400;
         coinText.text = coinCount.ToString();
+        gemText.text = DataModel.Instance.mGemCount.ToString();
+
+        maxRoundCount = RunningManager.Instance.mMaxRound;
 
         StartNewRound();
     }
@@ -85,9 +103,9 @@ public class BattleManager : MonoBehaviour
     {
         currentRound++;
         roundText.text = $"第<color=#FF0000>{currentRound}</color>轮";
-        if (currentRound > 99)
+        if (currentRound > maxRoundCount)
         {
-            Win();
+            StartCoroutine(DelayWin());
             return;
         }
         //通知新回合开始
@@ -108,33 +126,25 @@ public class BattleManager : MonoBehaviour
                 enemyRoot).GetComponent<CharacterBase>();
             e.SetID(enemy);
             e.Init();
-            //float currentHp = e.attributes.GetFinalAttr(AttributeType.Hp, e.attributeModifiers);
-            AttributeModifier hp = new AttributeModifier(AttributeType.Hp, currentRoundData.HpAdd, true);
-            AttributeModifier atk = new AttributeModifier(AttributeType.Attack, currentRoundData.ATKAdd, true);
+            float add = diffAdd[RunningManager.Instance.mCurrentDiff];
+            AttributeModifier hp = new AttributeModifier(AttributeType.Hp, currentRoundData.HpAdd * add, true);
+            AttributeModifier atk = new AttributeModifier(AttributeType.Attack, currentRoundData.ATKAdd * add, true);
             e.AddAttributeModifier(hp);
             e.AddAttributeModifier(atk);
-            //e.Heal(currentHp * currentRoundData.HpAdd);
+            var enemyData = StaticDataInterface.Enemy.GetEnemy(enemy);
+            enemyText.text = enemyData.Name + $"({quality[enemyData.Quality]})";
+            enemyText.color = color[enemyData.Quality];
         }
 
-        currentStage = BattleStage.DrawCrad;
-        stageText.text = "抽卡阶段";
+        currentStage = BattleStage.DoCard;
+        stageText.text = "打牌阶段";
         nextStageBtn.SetActive(true);
     }
 
-    public void NextStage()
+    IEnumerator DelayWin()
     {
-        switch (currentStage)
-        {
-            case BattleStage.DrawCrad:
-                DrawCardEnd();
-                break;
-            case BattleStage.PlayCard:
-                PlayCardEnd();
-                nextStageBtn.SetActive(false);
-                break;
-            default:
-                break;
-        }
+        yield return new WaitForSeconds(0.8f);
+        Win();
     }
 
     //抽卡
@@ -184,13 +194,6 @@ public class BattleManager : MonoBehaviour
         return id;
     }
 
-    // 抽完卡
-    void DrawCardEnd()
-    {
-        currentStage = BattleStage.PlayCard;
-        stageText.text = "出牌阶段";
-    }
-
     //打出卡牌
     public bool PlayCard(string id)
     {
@@ -220,10 +223,11 @@ public class BattleManager : MonoBehaviour
     }
 
     // 出牌完毕
-    private void PlayCardEnd()
+    public void BattleStart()
     {
         currentStage = BattleStage.Battle;
         stageText.text = "战斗阶段";
+        nextStageBtn.SetActive(false);
     }
 
     // 检查战斗情况
@@ -248,29 +252,50 @@ public class BattleManager : MonoBehaviour
         currentStage = BattleStage.Cleanup;
         stageText.text = "结算阶段";
 
-        float roundCoin = StaticDataInterface.Round.GetRound(currentRound).Coin;
-        AddCoin(roundCoin);
-
-        // 重置状态，准备下一回合
+        if(currentRound + 1 > maxRoundCount)
+        {
+            //游戏胜利
+        }
+        else
+        {
+            float roundCoin = StaticDataInterface.Round.GetRound(currentRound).Coin;
+            AddCoin(roundCoin);
+            float add = diffAdd[RunningManager.Instance.mCurrentDiff];
+            AddGem(add);
+            // 重置状态，准备下一回合
+            nextStageBtn.SetActive(true);
+        }
         StartNewRound();
     }
 
     public void AddCoin(float count)
     {
         count += count * coinAdd;
+        MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_TIP_SHOW, $"金币 +{count}！");
         coinCount += (int)count;
         coinText.text = coinCount.ToString();
+    }
+
+    public void AddGem(float count)
+    {
+        MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_TIP_SHOW, $"钻石 +{count}！");
+        DataModel.Instance.mGemCount += (int)count;
+        gemText.text = DataModel.Instance.mGemCount.ToString();
     }
 
     void Win()
     {
         Pause();
+        currentStage = BattleStage.End;
+        AudioManager.Instance.PlayWin();
         win.SetActive(true);
     }
 
     void Lose()
     {
         Pause();
+        currentStage = BattleStage.End;
+        AudioManager.Instance.PlayLose();
         lose.SetActive(true);
     }
 
@@ -340,6 +365,11 @@ public class BattleManager : MonoBehaviour
     {
         coinCount += 1000;
         coinText.text = coinCount.ToString();
+    }
+    public void GM_Gem()
+    {
+        DataModel.Instance.mGemCount += 1000;
+        gemText.text = DataModel.Instance.mGemCount.ToString();
     }
     #endregion
 }

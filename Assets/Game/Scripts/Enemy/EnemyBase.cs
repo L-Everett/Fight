@@ -1,4 +1,5 @@
-using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyBase : CharacterBase
@@ -6,15 +7,6 @@ public class EnemyBase : CharacterBase
     [Header("Enemy Settings")]
     public Transform characterRoot; // 玩家角色根节点
     public string playerTag = "Player"; // 玩家标签
-    public TextMeshProUGUI nameText;
-    private string[] quality = { "", "普通", "精英", "稀有", "史诗", "传说" };
-    private Color[] color = { Color.white,
-        new Color(0.66f, 0.66f, 0.66f, 1f), //普通
-        new Color(0.1f, 0.74f, 0f, 1f), //精英
-        new Color(0.33f, 0.85f, 1f, 1f), //稀有
-        new Color(0.68f, 0.3f, 1f, 1f), //史诗
-        new Color(1f, 0.62f, 0.15f, 1f), //传说
-    };
 
     protected override void Awake()
     {
@@ -28,6 +20,12 @@ public class EnemyBase : CharacterBase
         }
     }
 
+    protected override void Update()
+    {
+        base.Update();
+        SkillCool();
+    }
+
     public override void Init()
     {
         battleManager = BattleManager.Instance;
@@ -39,9 +37,18 @@ public class EnemyBase : CharacterBase
         else
         {
             attributes.Init(id, true);
-            var enemyData = StaticDataInterface.Enemy.GetEnemy(id);
-            nameText.text = enemyData.Name + $"({quality[enemyData.Quality]})";
-            nameText.color = color[enemyData.Quality];
+            //初始化技能
+            coolTimes.Clear();
+            coolTimers.Clear();
+            var data = StaticDataInterface.Enemy.GetEnemy(id);
+            var skillIDList = data.Skills;
+            var skillCools = data.SkillCools;
+            for (int i = 0; i < skillIDList.Count; i++)
+            {
+                coolTimes.Add(skillIDList[i], skillCools[i]);
+                coolTimers.Add(skillIDList[i], 0);
+            }
+            skillKeys = new List<int>(coolTimes.Keys);
         }
 
         // 设置初始生命值
@@ -92,10 +99,40 @@ public class EnemyBase : CharacterBase
         }
     }
 
-    // 敌人专属攻击特效
-    protected virtual void PlayEnemyAttackEffect(Vector3 position)
+    //释放技能AI接口
+    public void ReleaseSkill(int skillID)
     {
-        // 实际项目中这里会实例化敌人专属攻击特效
-        //Debug.Log($"Enemy attack effect at {position}");
+        EnemySkill(skillID);
+    }
+
+    // 敌人技能
+    protected Dictionary<int, float> coolTimes = new Dictionary<int, float>();
+    private Dictionary<int, float> coolTimers = new Dictionary<int, float>();
+    protected virtual void EnemySkill(int skillID)
+    {
+        animator.SetTrigger($"Skill{skillID}");
+    }
+
+    //技能冷却
+    private List<int> skillKeys;
+    void SkillCool()
+    {
+        foreach(var key in skillKeys)
+        {
+            coolTimers[key] += Time.deltaTime * battleManager.currentTimeSpeed;
+        }
+    }
+
+    bool GetSkillCoolDown(int skillID)
+    {
+        if(coolTimes.ContainsKey(skillID) && coolTimers.ContainsKey(skillID))
+        {
+            if (coolTimers[skillID] >= coolTimes[skillID])
+            {
+                coolTimers[skillID] = 0;
+                return true;
+            }
+        }
+        return false;
     }
 }

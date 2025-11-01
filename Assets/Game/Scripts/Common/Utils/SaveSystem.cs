@@ -1,4 +1,6 @@
-﻿using System.IO;
+using Newtonsoft.Json;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public static class SaveSystem
@@ -20,25 +22,54 @@ public static class SaveSystem
     // === 基础存档操作 ===
     public static void SaveGame()
     {
-        //刷新数据
-        DataModel.Instance.SaveGame();
-        // 加密并保存
-        string jsonData = EncryptData(JsonUtility.ToJson(DataModel.Instance));
-        File.WriteAllText(SAVE_FILE, jsonData);
+        try
+        {
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
 
-        Debug.Log($"存档成功! 位置: {SAVE_FILE}");
+            string jsonData = JsonConvert.SerializeObject(DataModel.Instance, settings);
+            string encryptedData = EncryptData(jsonData);
+            File.WriteAllText(SAVE_FILE, encryptedData, Encoding.UTF8);
+
+            //Debug.Log($"存档成功! 位置: {SAVE_FILE}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"存档失败: {e.Message}");
+        }
     }
 
     public static bool LoadGame()
     {
         if (File.Exists(SAVE_FILE))
         {
-            string encryptedData = File.ReadAllText(SAVE_FILE);
-            string jsonData = DecryptData(encryptedData);
-            // 应用存档数据到游戏
-            DataModel.Instance.LoadGame(JsonUtility.FromJson<DataModel>(jsonData));
-            Debug.Log("存档加载成功!");
-            return true;
+            try
+            {
+                string encryptedData = File.ReadAllText(SAVE_FILE, Encoding.UTF8);
+                string jsonData = DecryptData(encryptedData);
+
+                // 使用Newtonsoft.Json反序列化
+                var settings = new JsonSerializerSettings
+                {
+                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                };
+
+                DataModel savedData = JsonConvert.DeserializeObject<DataModel>(jsonData, settings);
+                DataModel.Instance.LoadGame(savedData);
+
+                Debug.Log("存档加载成功!");
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"加载存档失败: {e.Message}");
+                // 失败时创建新存档
+                DataModel.Instance.Init();
+                return false;
+            }
         }
         else
         {

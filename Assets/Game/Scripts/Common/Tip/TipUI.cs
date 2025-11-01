@@ -8,12 +8,10 @@ public class TipUI : MonoBehaviour
     private float timer = 0f;
     public float lifeTime = 1.5f; // 总存活时间
     public System.Action OnFinish;
-    private BattleManager battleManager;
 
     private void OnEnable()
     {
         transform.localPosition = Vector3.zero;
-        if (battleManager == null ) battleManager = BattleManager.Instance;
     }
 
     public void InitUI(string content)
@@ -28,9 +26,9 @@ public class TipUI : MonoBehaviour
         while (timer < lifeTime)
         {
             // 每帧向上移动
-            transform.localPosition += 50f * Time.deltaTime * battleManager.currentTimeSpeed * Vector3.up;
+            transform.localPosition += 50f * Time.deltaTime * Vector3.up;
 
-            timer += Time.deltaTime * battleManager.currentTimeSpeed;
+            timer += Time.deltaTime;
             yield return null;
         }
         OnFinish?.Invoke();

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using static NPOI.HSSF.Util.HSSFColor;
 
 public abstract class CharacterBase : MonoBehaviour
 {
@@ -34,6 +33,7 @@ public abstract class CharacterBase : MonoBehaviour
     protected bool isEnemy = false;
 
     protected BattleManager battleManager;
+    protected AudioManager audioManager;
 
     protected virtual void Awake()
     {
@@ -56,7 +56,7 @@ public abstract class CharacterBase : MonoBehaviour
         Init();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         animator.speed = battleManager.currentTimeSpeed;
         UpdateAnimationSpeed();
@@ -71,6 +71,7 @@ public abstract class CharacterBase : MonoBehaviour
     public virtual void Init()
     {
         battleManager = BattleManager.Instance;
+        audioManager = AudioManager.Instance;
         // 初始化属性
         attributes.Init(RunningManager.Instance.mCurrentCharacter);
 
@@ -86,9 +87,6 @@ public abstract class CharacterBase : MonoBehaviour
         currentTarget = null;
         lastAttackTime = 0;
         lastAcquireTime = 0;
-
-        // 更新动画速度
-        //UpdateAnimationSpeed();
     }
 
     // 更新动画速度（根据攻速）
@@ -110,13 +108,6 @@ public abstract class CharacterBase : MonoBehaviour
         {
             //UpdateAnimationSpeed();
         }
-
-        // 如果是HP相关修饰符，更新HP显示
-        //if (modifier.attributeType == AttributeType.Hp)
-        //{
-        //    float maxHp = attributes.GetFinalAttr(AttributeType.Hp, attributeModifiers);
-        //    hpCtrl.FreshHp(currentHp, maxHp);
-        //}
 
         return id;
     }
@@ -148,9 +139,6 @@ public abstract class CharacterBase : MonoBehaviour
     {
         attributeModifiers.Clear();
         attributes.MarkDirty();
-
-        // 更新动画速度
-        //UpdateAnimationSpeed();
 
         // 更新HP显示
         float maxHp = attributes.GetFinalAttr(AttributeType.Hp, attributeModifiers);
@@ -226,6 +214,11 @@ public abstract class CharacterBase : MonoBehaviour
         }
     }
 
+    protected virtual void PlayATKSFX()
+    {
+
+    }
+
     // 开始攻击
     protected virtual void StartAttack()
     {
@@ -245,6 +238,7 @@ public abstract class CharacterBase : MonoBehaviour
         float preSwingTime = 0.3f / attackSpeed;
         yield return new WaitForSeconds(preSwingTime);
 
+        PlayATKSFX();
         animator.SetTrigger("Attack");
         //animator.SetFloat("AttackSpeed", attackSpeed * battleManager.currentTimeSpeed);
     }
@@ -259,14 +253,22 @@ public abstract class CharacterBase : MonoBehaviour
         if (isCrit)
         {
             float critDamage = attributes.GetFinalAttr(AttributeType.CritDamage, attributeModifiers);
-            //Debug.Log(baseDmg * (1 + critDamage));
-            return baseDmg * (1 + critDamage);
+            baseDmg = baseDmg * critDamage;
         }
 
         float damageAddRate = attributes.GetFinalAttr(AttributeType.DamageAddRate, attributeModifiers);
         baseDmg += baseDmg * damageAddRate;
 
-        return baseDmg;
+        return ApplyDamageFluctuation(baseDmg);
+    }
+
+    //伤害值浮动效果
+    public float ApplyDamageFluctuation(float baseDamage, float fluctuationPercent = 0.05f)
+    {
+        float minMultiplier = 1f - fluctuationPercent;
+        float maxMultiplier = 1f + fluctuationPercent;
+        float randomMultiplier = Random.Range(minMultiplier, maxMultiplier);
+        return baseDamage * randomMultiplier;
     }
 
     // 受伤处理

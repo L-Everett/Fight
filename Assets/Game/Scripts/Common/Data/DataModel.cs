@@ -1,20 +1,25 @@
 using System;
-using UnityEngine;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 [Serializable]
+[JsonObject(MemberSerialization.Fields)] // 确保序列化字段而不是属性
 public class DataModel
 {
     private static readonly object _lock = new object();
     private static DataModel instance;
 
-    //游戏内数据
-    public int mPlayerMaxHp;  //最大血量
-    public int mPlayerCurHp;  //当前血量
-    public Vector3 mPlayerPosition;  //玩家位置
-    public float mPlayTime;  //游戏时间
-    public int mUnlockLevelCount;  //解锁关卡
-    public int mGoldCount;  //灵石数量
-    public int mTanentGoldCount;  //天赋石数量
+    [JsonProperty]
+    public float mPlayTime;  // 游戏时间
+
+    [JsonProperty]
+    public int mGemCount;  // 天赋石数量
+
+    [JsonProperty]
+    public Dictionary<string, List<AttributeModifier>> mTalentAdd;
+
+    [JsonProperty]
+    public Dictionary<string, int> mTalentLv;
 
     public static DataModel Instance
     {
@@ -24,38 +29,44 @@ public class DataModel
             {
                 lock (_lock)
                 {
-                    instance = new DataModel();
+                    if (instance == null)
+                    {
+                        instance = new DataModel();
+                        instance.Init(); // 确保初始化
+                    }
                 }
             }
             return instance;
         }
-        private set { }
+        private set { instance = value; }
     }
 
     public void Init()
     {
-
-        mPlayerPosition = new Vector3(0, 0, 0);
         mPlayTime = 0;
-        mUnlockLevelCount = 1;
-        mGoldCount = 0;
-        mTanentGoldCount = 0;
-}
-
-    public void SaveGame()
-    {
-
+        mGemCount = 0;
+        mTalentAdd = new Dictionary<string, List<AttributeModifier>>();
+        mTalentLv = new Dictionary<string, int>();
     }
 
     public void LoadGame(DataModel dataModel)
     {
-        mPlayerPosition = dataModel.mPlayerPosition;
-        mPlayerMaxHp = dataModel.mPlayerMaxHp;
-        mPlayerCurHp = dataModel.mPlayerCurHp;
+        if (dataModel == null)
+        {
+            Init();
+            return;
+        }
+
         mPlayTime = dataModel.mPlayTime;
-        mUnlockLevelCount = dataModel.mUnlockLevelCount;
-        mGoldCount = dataModel.mGoldCount;
-        mTanentGoldCount = dataModel.mTanentGoldCount;
+        mGemCount = dataModel.mGemCount;
+
+        mTalentAdd = dataModel.mTalentAdd ?? new Dictionary<string, List<AttributeModifier>>();
+        mTalentLv = dataModel.mTalentLv ?? new Dictionary<string, int>();
     }
 
+    public void GetGem(int count)
+    {
+        mGemCount += count;
+        SaveSystem.SaveGame();
+    }
 }

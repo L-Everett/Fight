@@ -14,6 +14,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip playCard;
     public AudioClip win;
     public AudioClip lose;
+    public AudioClip c1Atk;
     public int mIsPlayBg = -1;
 
     // 添加音量属性
@@ -127,6 +128,11 @@ public class AudioManager : MonoBehaviour
     public void PlayPlayCard()
     {
         sfxSource.PlayOneShot(playCard);
+    }
+
+    public void PlayC1Attack()
+    {
+        sfxSource.PlayOneShot(c1Atk);
     }
 
     public void CrossFadeMusic(int newMusicIndex, float fadeDuration = 1.0f)

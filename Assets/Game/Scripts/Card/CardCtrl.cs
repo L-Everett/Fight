@@ -231,7 +231,7 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     #region 拖拽事件
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (battleManager.currentStage != BattleStage.PlayCard) return;
+        if (battleManager.currentStage != BattleStage.DoCard) return;
         if (isDragging || isPlayingCard) return;
         isDragging = true;
 
@@ -266,7 +266,7 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (battleManager.currentStage != BattleStage.PlayCard) return;
+        if (battleManager.currentStage != BattleStage.DoCard) return;
         if (!isDragging || isPlayingCard) return;
         UpdateCardPosition(eventData.position);
 

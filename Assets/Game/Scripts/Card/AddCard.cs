@@ -7,9 +7,9 @@ public class AddCard : MonoBehaviour
     
     public void OnClick()
     {
-        if (BattleManager.Instance.currentStage != BattleStage.DrawCrad)
+        if (BattleManager.Instance.currentStage != BattleStage.DoCard)
         {
-            MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_TIP_SHOW, "非抽卡阶段!");
+            MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_TIP_SHOW, "非打牌阶段!");
             return;
         }
         string id = BattleManager.Instance.AddCard(mCardType);

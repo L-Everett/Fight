@@ -19,6 +19,8 @@ public class DamagePopup : MonoBehaviour
     private Color initColor;
     private float initFontSize;
 
+    private BattleManager battleManager;
+
     private void Awake()
     {
         // 自动获取Text组件
@@ -27,6 +29,7 @@ public class DamagePopup : MonoBehaviour
             damageText = GetComponentInChildren<TextMeshProUGUI>();
         }
 
+        battleManager = BattleManager.Instance;
         initColor = damageText.color;
         initFontSize = damageText.fontSize;
     }
@@ -36,6 +39,7 @@ public class DamagePopup : MonoBehaviour
         startPosition = transform.position;
         damageText.color = initColor;
         damageText.fontSize = initFontSize;
+        transform.localScale = Vector3.one;
     }
 
     // 设置伤害值
@@ -89,7 +93,7 @@ public class DamagePopup : MonoBehaviour
 
             target.transform.localScale = originalScale * currentScale;
 
-            elapsed += Time.deltaTime;
+            elapsed += Time.deltaTime * battleManager.currentTimeSpeed;
             yield return null;
         }
 
@@ -103,6 +107,7 @@ public class DamagePopup : MonoBehaviour
 
         while (elapsedTime < destroyTime)
         {
+            if (battleManager.currentStage == BattleStage.End) break;
             elapsedTime = Time.time - startTime;
             float progress = elapsedTime / destroyTime;
 

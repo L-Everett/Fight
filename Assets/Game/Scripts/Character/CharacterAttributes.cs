@@ -40,6 +40,16 @@ public class CharacterAttributes
             baseAttr.Add(AttributeType.AttackSpeed, data.ATKSpeed);
             baseAttr.Add(AttributeType.AttackRange, data.ATKRange);
             baseAttr.Add(AttributeType.DamageAddRate, 0);
+
+            //神赐
+            RunningManager.Instance.mTalentAdd.TryGetValue(id, out var talentAdd);
+            if(talentAdd != null)
+            {
+                foreach(var talent in talentAdd)
+                {
+                    baseAttr[talent.Key] += talent.Value;
+                }
+            }
         }
 
         // 初始化后标记为需要重新计算

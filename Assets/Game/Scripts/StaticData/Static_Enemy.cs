@@ -38,6 +38,10 @@ public class Static_Enemy_t
     
     public int Coin;
     
+    public System.Collections.Generic.List<int> Skills;
+    
+    public System.Collections.Generic.List<float> SkillCools;
+    
     public Static_Enemy_t(ref System.Collections.Generic.Dictionary<string, string> rValueSet)
     {
              String str_Id = rValueSet["Id"];
@@ -82,6 +86,14 @@ public class Static_Enemy_t
 
              String str_Coin = rValueSet["Coin"];
              Coin = Utils.IntParseByString(str_Coin);
+
+
+             String str_Skills = rValueSet["Skills"];
+             Skills = Utils.ParseIntStrings(str_Skills, ';');
+
+
+             String str_SkillCools = rValueSet["SkillCools"];
+             SkillCools = Utils.ParseFloatStrings(str_SkillCools, ';');
 
 
     }

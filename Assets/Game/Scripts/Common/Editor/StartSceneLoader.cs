@@ -9,7 +9,7 @@ public class StartSceneLoader
     [RuntimeInitializeOnLoadMethod]
     static void Initialize()
     {
-        if (SceneManager.GetActiveScene().name == "StartScene")
+        if (SceneManager.GetActiveScene().name == "StartScene" || SceneManager.GetActiveScene().name == "TestScene")
         {
             return;
         }
