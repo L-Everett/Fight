@@ -208,6 +208,11 @@ public class SelectCtrl : MonoBehaviour
 
     public void Next()
     {
+        if (RunningManager.Instance.mCurrentCharacter != "C001")
+        {
+            MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_TIP_SHOW, "该角色暂未开放！");
+            return;
+        }
         MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_SCENE_CHANGE, "MainScene");
     }
 }

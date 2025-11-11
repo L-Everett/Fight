@@ -900,7 +900,6 @@ GameObject:
   - component: {fileID: 6689552468306242609}
   - component: {fileID: 5695247276383423576}
   - component: {fileID: 5505152353597545980}
-  - component: {fileID: 1424906025737809154}
   m_Layer: 0
   m_Name: Albino
   m_TagString: Untagged
@@ -956,18 +955,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db7eeed538f12aa4581919293ccff8cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1424906025737809154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4377527245376921326}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dea28915ddea7741a91d96e7996b7c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5024069252788201785
@@ -1906,6 +1893,7 @@ GameObject:
   - component: {fileID: 7192508750685284820}
   - component: {fileID: 5730737241882825378}
   - component: {fileID: 5140742906615444952}
+  - component: {fileID: 1159654633659536325}
   m_Layer: 0
   m_Name: E001
   m_TagString: Enemy
@@ -1952,6 +1940,7 @@ MonoBehaviour:
   acquireInterval: 0.3
   isMoving: 0
   isAttacking: 0
+  isSkill: 0
   isDead: 0
   currentTarget: {fileID: 0}
   lastAttackTime: 0
@@ -2042,6 +2031,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1159654633659536325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635439368722173140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dea28915ddea7741a91d96e7996b7c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skill1Prefab: {fileID: 4009933373567101003, guid: d39e994c12ec31d42bfdf760d090f31a, type: 3}
 --- !u!1 &7656560193334025166
 GameObject:
   m_ObjectHideFlags: 0

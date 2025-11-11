@@ -297,7 +297,7 @@ public class SkillExec : MonoBehaviour, IMsgHandler
     private int s014UID = -1;
     void S014()
     {
-        float value = StaticDataInterface.Skill.GetSkill("S013").Value;
+        float value = StaticDataInterface.Skill.GetSkill("S014").Value;
         s014UID = character.AddAttributeModifier(new AttributeModifier(AttributeType.Attack, value, true));
     }
     void DS014()
@@ -310,7 +310,7 @@ public class SkillExec : MonoBehaviour, IMsgHandler
     private int s015UID = -1;
     void S015()
     {
-        float value = StaticDataInterface.Skill.GetSkill("S013").Value;
+        float value = StaticDataInterface.Skill.GetSkill("S015").Value;
         s015UID = character.AddAttributeModifier(new AttributeModifier(AttributeType.AttackSpeed, value, true));
     }
     void DS015()

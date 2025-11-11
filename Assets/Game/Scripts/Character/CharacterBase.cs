@@ -15,16 +15,16 @@ public abstract class CharacterBase : MonoBehaviour
     public NavMeshAgent navMeshAgent;
 
     [Header("Combat Settings")]
-    public Transform enemyRoot; // 敌人根节点
+    [HideInInspector] public Transform enemyRoot; // 敌人根节点
     public float acquireInterval = 0.5f; // 索敌间隔时间
 
-    [Header("Runtime State")]
-    public bool isMoving;
-    public bool isAttacking;
-    public bool isDead;
-    public Transform currentTarget;
-    public float lastAttackTime;
-    public float lastAcquireTime; // 上次索敌时间
+    [HideInInspector] public bool isMoving;
+    [HideInInspector] public bool isAttacking;
+    [HideInInspector] public bool isSkill;
+    [HideInInspector] public bool isDead;
+    [HideInInspector] public Transform currentTarget;
+    [HideInInspector] public float lastAttackTime;
+    [HideInInspector] public float lastAcquireTime; // 上次索敌时间
 
     [HideInInspector] public Dictionary<int, AttributeModifier> attributeModifiers = new Dictionary<int, AttributeModifier>();
     private int attrUid = 0;
@@ -59,7 +59,20 @@ public abstract class CharacterBase : MonoBehaviour
     protected virtual void Update()
     {
         animator.speed = battleManager.currentTimeSpeed;
+        if (battleManager.currentTimeSpeed == 0)
+        {
+            navMeshAgent.speed = 0;
+        }
+        else if(navMeshAgent.speed == 0)
+        {
+            navMeshAgent.speed = battleManager.currentTimeSpeed * attributes.GetFinalAttr(AttributeType.MoveSpeed, attributeModifiers);
+        }
         UpdateAnimationSpeed();
+    }
+
+    public string GetID()
+    {
+        return id;
     }
 
     public virtual void SetID(string id)
@@ -205,7 +218,7 @@ public abstract class CharacterBase : MonoBehaviour
         }
     }
 
-    // 攻击接口（供AI调用）
+    // 攻击接口
     public virtual void AttackCommand()
     {
         if (!isAttacking && !isDead && currentTarget != null && Time.time - lastAttackTime > 0.1f)
@@ -240,7 +253,6 @@ public abstract class CharacterBase : MonoBehaviour
 
         PlayATKSFX();
         animator.SetTrigger("Attack");
-        //animator.SetFloat("AttackSpeed", attackSpeed * battleManager.currentTimeSpeed);
     }
 
     // 伤害计算
@@ -294,6 +306,7 @@ public abstract class CharacterBase : MonoBehaviour
     protected virtual void Die()
     {
         isDead = true;
+
         animator.SetTrigger("Die");
         rb.velocity = Vector3.zero;
 

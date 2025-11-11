@@ -5,9 +5,22 @@ using UnityEngine;
 
 public static class SaveSystem
 {
-    // 存档路径（兼容所有平台）
-    public static readonly string SAVE_FOLDER = Path.Combine(Application.persistentDataPath, "Saves");
-    public static readonly string SAVE_FILE = Path.Combine(SAVE_FOLDER, "save.dat");
+    // 存档路径（与exe同级目录）
+    public static string SAVE_FOLDER
+    {
+        get
+        {
+#if UNITY_EDITOR
+            // 编辑器模式下，放在项目根目录的Saves文件夹
+            return Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Saves");
+#else
+            // 打包后，放在exe同级目录的Saves文件夹
+            return Path.Combine(Directory.GetParent(Application.dataPath).FullName, "Saves");
+#endif
+        }
+    }
+
+    public static string SAVE_FILE => Path.Combine(SAVE_FOLDER, "save.dat");
 
     // 初始化系统
     static SaveSystem()
@@ -16,6 +29,7 @@ public static class SaveSystem
         if (!Directory.Exists(SAVE_FOLDER))
         {
             Directory.CreateDirectory(SAVE_FOLDER);
+            Debug.Log($"存档目录已创建: {SAVE_FOLDER}");
         }
     }
 
@@ -34,7 +48,7 @@ public static class SaveSystem
             string encryptedData = EncryptData(jsonData);
             File.WriteAllText(SAVE_FILE, encryptedData, Encoding.UTF8);
 
-            //Debug.Log($"存档成功! 位置: {SAVE_FILE}");
+            Debug.Log($"存档成功! 位置: {SAVE_FILE}");
         }
         catch (System.Exception e)
         {
@@ -100,6 +114,35 @@ public static class SaveSystem
         }
 
         Debug.Log("所有存档已清除!");
+    }
+
+    // 获取存档文件夹的完整路径（用于在资源管理器中打开）
+    public static void OpenSaveFolder()
+    {
+        if (Directory.Exists(SAVE_FOLDER))
+        {
+            System.Diagnostics.Process.Start(SAVE_FOLDER);
+        }
+        else
+        {
+            Debug.LogWarning("存档目录不存在: " + SAVE_FOLDER);
+        }
+    }
+
+    // 检查存档是否存在
+    public static bool SaveExists()
+    {
+        return File.Exists(SAVE_FILE);
+    }
+
+    // 获取存档文件信息
+    public static FileInfo GetSaveFileInfo()
+    {
+        if (File.Exists(SAVE_FILE))
+        {
+            return new FileInfo(SAVE_FILE);
+        }
+        return null;
     }
 
     // === 加密 ===

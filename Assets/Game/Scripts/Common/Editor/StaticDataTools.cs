@@ -14,7 +14,7 @@ public class StaticDataTools : EditorWindow
     [MenuItem("Tools/ExeclToCSV")]
     public static void Execl2CSV()
     {
-        ConvertExcel("../ExcelData", "Game/CSV");
+        ConvertExcel("../ExcelData", "Game/Resources/CSV");
     }
 
     [MenuItem("Tools/生成CSV解析类")]
@@ -118,12 +118,40 @@ public class StaticDataTools : EditorWindow
         }
     }
 
+    //static void _LoadCsv()
+    //{
+    //    string csvPath = Application.dataPath + "\\Game\\Resources\\CSV";
+    //    if (!Directory.Exists(csvPath))
+    //    {
+    //        Debug.LogError("当前路径不存在" + csvPath);
+    //        return;
+    //    }
+
+    //    DirectoryInfo root = new DirectoryInfo(csvPath);
+    //    foreach (FileInfo f in root.GetFiles())
+    //    {
+    //        string fileName = f.Name;
+    //        if (fileName.Contains(".meta")) continue;
+    //        string filePath = csvPath + "\\" + fileName;
+
+    //        List<string[]> dataList = StaticUtils.ParseCSVContent(filePath, ',');
+    //        if (dataList.Count < 3)
+    //        {
+    //            Debug.LogError("error:表最少应该3行：" + fileName);
+    //            return;
+    //        }
+    //        Debug.Log("buildClass:" + fileName);
+    //        BuildClass(fileName, dataList[1], dataList[2]);
+    //    }
+    //}
+
     static void _LoadCsv()
     {
-        string csvPath = Application.dataPath + "\\Game\\CSV";
+        string csvPath = Path.Combine(Application.dataPath, "Game", "Resources", "CSV");
+
         if (!Directory.Exists(csvPath))
         {
-            Debug.LogError("当前路径不存在" + csvPath);
+            Debug.LogError("当前路径不存在: " + csvPath);
             return;
         }
 
@@ -131,23 +159,20 @@ public class StaticDataTools : EditorWindow
         foreach (FileInfo f in root.GetFiles())
         {
             string fileName = f.Name;
-            if (fileName.Contains(".meta")) continue;
-            string filePath = csvPath + "\\" + fileName;
+            if (fileName.Contains(".meta") || !fileName.EndsWith(".csv")) continue;
 
-            List<string[]> dataList = StaticUtils.ParseCSV(filePath, ',');
-            if (dataList.Count < 3)
+            List<string[]> dataList = StaticUtils.LoadCSV(Path.GetFileNameWithoutExtension(fileName));
+
+            if (dataList == null || dataList.Count < 3)
             {
-                Debug.LogError("error:表最少应该3行：" + fileName);
-                return;
+                Debug.LogError($"CSV文件解析失败或行数不足3行: {fileName}");
+                continue;
             }
-            Debug.Log("buildClass:" + fileName);
+
+            Debug.Log("buildClass: " + fileName);
             BuildClass(fileName, dataList[1], dataList[2]);
         }
     }
-
-    // 解析csv表
-    
-
 
     // 创建class
     static public void BuildClass(string fileName, string[] strIDs, string[] strTypes)

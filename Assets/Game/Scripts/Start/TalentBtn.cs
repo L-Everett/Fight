@@ -8,14 +8,14 @@ public class TalentBtn : MonoBehaviour
     private Renderer monumentRenderer; 
 
     //天赋树UI
-    public GameObject talentTreeUI; 
+    public GameObject talentRoot; 
 
     // 当鼠标在碰撞体上并点击时调用
     void OnMouseDown()
     {
-        if (talentTreeUI != null)
+        if (talentRoot != null)
         {
-            talentTreeUI.SetActive(true);
+            talentRoot.SetActive(true);
             monumentRenderer.material = normalMaterial;
         }
     }
@@ -33,7 +33,7 @@ public class TalentBtn : MonoBehaviour
 
     void OnMouseEnter()
     {
-        if (talentTreeUI != null && talentTreeUI.activeSelf) return;
+        if (talentRoot != null && talentRoot.activeSelf) return;
         monumentRenderer.material = highlightMaterial;
         AudioManager.Instance.PlayHover();
     }

@@ -1,12 +1,13 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class EnemyBase : CharacterBase
 {
-    [Header("Enemy Settings")]
-    public Transform characterRoot; // 玩家角色根节点
-    public string playerTag = "Player"; // 玩家标签
+    [HideInInspector] public Transform characterRoot; // 玩家角色根节点
+    [HideInInspector] public string playerTag = "Player"; // 玩家标签
+    protected EnemySkill skillctrl;
+    protected Queue<int> skillBuffQ = new Queue<int>(); //技能缓存队列
 
     protected override void Awake()
     {
@@ -18,12 +19,15 @@ public class EnemyBase : CharacterBase
             GameObject rootObj = GameObject.Find("CharacterRoot");
             if (rootObj != null) characterRoot = rootObj.transform;
         }
+
+        skillctrl = GetComponent<EnemySkill>();
     }
 
     protected override void Update()
     {
         base.Update();
         SkillCool();
+        CheckSkillQ();
     }
 
     public override void Init()
@@ -99,10 +103,26 @@ public class EnemyBase : CharacterBase
         }
     }
 
+    //普通攻击AI接口
+    public override void AttackCommand()
+    {
+        if (skillBuffQ.Count > 0) return;
+        base.AttackCommand();
+    }
+
     //释放技能AI接口
     public void ReleaseSkill(int skillID)
     {
-        EnemySkill(skillID);
+        if (isSkill) return;
+        isSkill = true;
+        if (isAttacking)
+        {
+            skillBuffQ.Enqueue(skillID);
+        }
+        else
+        {
+            EnemySkill(skillID);
+        }
     }
 
     // 敌人技能
@@ -110,12 +130,24 @@ public class EnemyBase : CharacterBase
     private Dictionary<int, float> coolTimers = new Dictionary<int, float>();
     protected virtual void EnemySkill(int skillID)
     {
+        isAttacking = true;
+        coolTimers[skillID] = 0;
         animator.SetTrigger($"Skill{skillID}");
+        StartCoroutine(DelaySkill(skillID));
+    }
+
+    //技能前摇
+    protected virtual IEnumerator DelaySkill(int skillID)
+    {
+        float time = 0.85f;
+        if (battleManager.currentTimeSpeed == 2) time = 0.425f;
+        yield return new WaitForSeconds(time);
+        skillctrl.RunSelectSkill(skillID);
     }
 
     //技能冷却
-    private List<int> skillKeys;
-    void SkillCool()
+    protected List<int> skillKeys;
+    protected void SkillCool()
     {
         foreach(var key in skillKeys)
         {
@@ -123,13 +155,21 @@ public class EnemyBase : CharacterBase
         }
     }
 
-    bool GetSkillCoolDown(int skillID)
+    //是否有缓存技能需要释放
+    protected void CheckSkillQ()
+    {
+        if(skillBuffQ.Count > 0 && !isAttacking)
+        {
+            EnemySkill(skillBuffQ.Dequeue());
+        }
+    }
+
+    public bool GetSkillCoolDown(int skillID)
     {
         if(coolTimes.ContainsKey(skillID) && coolTimers.ContainsKey(skillID))
         {
             if (coolTimers[skillID] >= coolTimes[skillID])
             {
-                coolTimers[skillID] = 0;
                 return true;
             }
         }

@@ -1,6 +1,0 @@
-﻿索引,名字,移动速度,攻击力,暴击率,暴击伤害,血量,攻速,攻击范围,初始武器
-Id,Name,MoveSpeed,ATK,Crit,CritDamage,HP,ATKSpeed,ATKRange,Weapon
-string,string,float,float,float,float,float,float,float,string
-C001,无名剑客,5,100,0.1,1,1000,0.8,9,W001
-C002,流浪法师,3,80,0.25,1,800,0.8,25,W001
-C003,特种战士,6,120,0.05,1.5,1100,0.8,25,W001

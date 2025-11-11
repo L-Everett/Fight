@@ -1,43 +1,50 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
-public class StaticUtils 
+public class StaticUtils
 {
     public static List<string[]> LoadCSV(string fileName)
     {
-        string csvPath = Application.dataPath + "\\Game\\CSV";
-        if (!Directory.Exists(csvPath))
+        TextAsset csvFile = Resources.Load<TextAsset>($"CSV/{fileName}");
+
+        if (csvFile == null)
         {
-            Debug.LogError("当前路径不存在" + csvPath);
+            Debug.LogError($"无法加载CSV文件: CSV/{fileName}");
             return null;
         }
 
-        string filePath = csvPath + "\\" + fileName + ".csv";
-        List<string[]> dataList = ParseCSV(filePath, ',');
+        List<string[]> dataList = ParseCSVContent(csvFile.text, ',');
         return dataList;
     }
 
-    public static List<string[]> ParseCSV(string csvPath, char sep)
+    public static List<string[]> ParseCSVContent(string csvContent, char sep)
     {
         List<string[]> dataList = new List<string[]>();
-        if (!File.Exists(csvPath))
+
+        if (string.IsNullOrEmpty(csvContent))
         {
-            Debug.LogError("当前路径不存在" + csvPath);
+            Debug.LogError("CSV内容为空");
             return dataList;
         }
-        StreamReader reader = new StreamReader(csvPath, System.Text.Encoding.GetEncoding("utf-8"));
-        string stringData = reader.ReadToEnd();
-        string[] strArray = stringData.Split('\n');
-        for (int i = 0; i < strArray.Length; i++)
+
+        // 按行分割
+        string[] lines = csvContent.Split('\n');
+
+        for (int i = 0; i < lines.Length; i++)
         {
-            string str = strArray[i];
-            if (str == "") continue;
-            string[] strA = str.Split('\r');
-            string[] strB = strA[0].Split(sep);
-            dataList.Add(strB);
+            string line = lines[i].Trim();
+            if (string.IsNullOrEmpty(line)) continue;
+
+            // 处理可能的\r字符
+            if (line.Contains("\r"))
+            {
+                line = line.Replace("\r", "");
+            }
+
+            string[] fields = line.Split(sep);
+            dataList.Add(fields);
         }
-        reader.Close();
+
         return dataList;
     }
 }

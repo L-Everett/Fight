@@ -152,7 +152,7 @@ public class S002 : MonoBehaviour
         }
     }
 
-    // 禁用剑
+    // 禁用
     private void DeactivateSword()
     {
         isMoving = false;

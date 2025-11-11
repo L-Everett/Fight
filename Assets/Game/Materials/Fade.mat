@@ -112,7 +112,7 @@ Material:
     - _DissolveThreshold: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeWidth: 0.165
+    - _EdgeWidth: 0.168
     - _EnvironmentReflections: 1
     - _FadeEnd: 1
     - _FadeStart: 0.76

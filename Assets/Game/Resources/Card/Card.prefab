@@ -489,6 +489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mFire: {fileID: 6323136052090148639}
   cardBgImg: {fileID: 2114572811234894307}
+  cardIcon: {fileID: 4852631733565607029}
   nameText: {fileID: 6672009412851664353}
   qualityText: {fileID: 1815089892812367014}
   contentText: {fileID: 3239932902386612564}
@@ -527,7 +528,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 292, y: 293}
+  m_SizeDelta: {x: 350, y: 350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6662361243736120004
 CanvasRenderer:
@@ -557,7 +558,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4460967030666841391, guid: 75b002f5320d0204fbb110edd8b21bbd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 03e6f50b7a998ed46a4c3f9f8cb0855e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

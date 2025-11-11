@@ -102,12 +102,13 @@ public class BattleManager : MonoBehaviour
     public void StartNewRound()
     {
         currentRound++;
-        roundText.text = $"第<color=#FF0000>{currentRound}</color>轮";
         if (currentRound > maxRoundCount)
         {
             StartCoroutine(DelayWin());
             return;
         }
+        roundText.text = $"第<color=#FF0000>{currentRound}</color>轮";
+
         //通知新回合开始
         MsgManager.Instance.EmitMsg(Constant.MSG_NOTIFY_ROUND_START);
         //角色相关刷新

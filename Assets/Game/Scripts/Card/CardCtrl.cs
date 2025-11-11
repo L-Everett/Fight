@@ -1,6 +1,5 @@
 using System.Collections;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,6 +14,7 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     [Header("卡牌属性")]
     public Image cardBgImg;
+    public Image cardIcon;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI qualityText;
     public TextMeshProUGUI contentText;
@@ -26,7 +26,6 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private Image cardImageComponent;
     private Vector3 cardImageOriginalScale;
 
-    private Vector3 originalScale;
     private Vector3 originalPosition;
     private Transform originalParent;
 
@@ -72,7 +71,6 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             Debug.LogError("CardImage child not found!");
         }
 
-        originalScale = Vector3.one;
         originalParent = transform.parent;
 
         layoutController = GetComponentInParent<CardLayoutController>();
@@ -130,6 +128,7 @@ public class CardCtrl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         //刷新卡牌属性
         cardId = card.Id;
         cardBgImg.sprite = Resources.Load<Sprite>($"Card/Card{card.Quality}");
+        cardIcon.sprite = Resources.Load<Sprite>($"Card/{card.Icon}");
         nameText.text = card.Name;
         qualityText.text = "[" + quality[card.Quality] + "]";
         contentText.text = card.Des;

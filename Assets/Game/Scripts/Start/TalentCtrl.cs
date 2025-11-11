@@ -9,6 +9,7 @@ public class TalentCtrl : MonoBehaviour
     public Image[] cHeads;
     public TextMeshProUGUI cName;
     public Material hight;
+    public GameObject root;
     private List<string> cIds;
     private int curId;
     private Dictionary<string, bool> needUpdate;
@@ -136,11 +137,11 @@ public class TalentCtrl : MonoBehaviour
                 }
                 else if ((AttributeType)curLvData.Attr[i] == AttributeType.CritRate)
                 {
-                    des.Append($"基础暴击率 +{curLvData.Value[i] * 100 : F0}%\n");
+                    des.Append($"基础暴击率 +{(int)(curLvData.Value[i] * 100)}%\n");
                 }
                 else if ((AttributeType)curLvData.Attr[i] == AttributeType.CritDamage)
                 {
-                    des.Append($"基础暴击伤害 +{curLvData.Value[i] * 100 : F0}%\n");
+                    des.Append($"基础暴击伤害 +{(int)(curLvData.Value[i] * 100)}%\n");
                 }
             }
         }
@@ -149,7 +150,7 @@ public class TalentCtrl : MonoBehaviour
 
     public void CloseTalentTree()
     {
-        gameObject.SetActive(false);
+        root.SetActive(false);
     }
 
     public void SelectCharacter(int i)
