@@ -159,10 +159,18 @@ public class BattleManager : MonoBehaviour
         List<int> finalWeight = new List<int>();
         for(int i = 0; i < cards.Item1.Count; i++)
         {
-            if (!cardsHasGet.Contains(cards.Item1[i]))
+            if(cardType == CardType.LeftSide)
             {
                 finalCard.Add(cards.Item1[i]);
                 finalWeight.Add(cards.Item2[i]);
+            }
+            else
+            {
+                if (!cardsHasGet.Contains(cards.Item1[i]))
+                {
+                    finalCard.Add(cards.Item1[i]);
+                    finalWeight.Add(cards.Item2[i]);
+                }
             }
         }
 
