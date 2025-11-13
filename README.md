@@ -3,6 +3,7 @@
 <!-- 项目简介 -->
 - 这是一个 **3D 策略抽卡肉鸽游戏**
 - Unity版本：2022.3.38f1c1
+- 游戏演示：https://www.bilibili.com/video/BV1u2CjBMECJ
 
 <!-- ![游戏截图](path/to/screenshot.png) -->
 
